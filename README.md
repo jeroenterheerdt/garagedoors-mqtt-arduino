@@ -26,8 +26,8 @@ See the image below and [the Fritzing diagram](double%20garagedoor%20Arduino.fzz
 This sketch supports over-the-air (OTA), but you will first 'prime' your chip with the OTA software as instructed here [Arduino OTA](https://arduino-esp8266.readthedocs.io/en/latest/ota_updates/readme.html). After that you can deploy this sketch and any updates OTA.
 
 You will need to make the following edits in the sketch:
-Line | Setting | Default
---- | --- | ---
+|Line | Setting | Default|
+| --- | --- | --- |
 |13|configure the hostname you want your esp8266 to have on your network|garagedoors|
 |14|configure the password you will use when uploading updates using OTA|password|
 |18/19|configure the pin (trigger pin, echo pin) for your ultrasonic sensors. Two have been provided, add more here if you need them|12,14 and 15,13|
