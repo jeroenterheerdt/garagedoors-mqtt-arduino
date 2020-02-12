@@ -23,9 +23,18 @@ See the image below and [the Fritzing diagram](double%20garagedoor%20Arduino.fzz
 
 
 ## Software
-This sketch supports over-the-air (OTA), but you will first 'prime' your chip with the OTA software as instructed here [Arduino OTA](https://arduino-esp8266.readthedocs.io/en/latest/ota_updates/readme.html). After that you can deploy this sketch and any updates OTA.
+[The sketch](GarageDoorsArduino.ino) supports over-the-air (OTA), but you will first 'prime' your chip with the OTA software as instructed here [Arduino OTA](https://arduino-esp8266.readthedocs.io/en/latest/ota_updates/readme.html). After that you can deploy this sketch and any updates OTA.
 
-You will need to make the following edits in the sketch:
+### Requirements
+- [Arduino_JSON](https://github.com/arduino-libraries/Arduino_JSON)
+- [HCSR04](https://github.com/gamegine/HCSR04-ultrasonic-sensor-lib)
+- [ESP8266WiFi](https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html)
+- [PubSubClient](https://pubsubclient.knolleary.net/)
+- [ArduinoOTA](https://github.com/esp8266/Arduino/tree/master/libraries/ArduinoOTA)
+
+### Configuration
+
+You will probably need to make the following edits in the sketch:
 |Line | Setting | Default|
 | --- | --- | --- |
 |13|configure the hostname you want your esp8266 to have on your network|garagedoors|
