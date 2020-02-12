@@ -21,6 +21,7 @@ See the image below and [the Fritzing diagram](double%20garagedoor%20Arduino.fzz
 - Wemos D7 --> echo/rx of ultrasound (left door)
 - Wemos D8 --> trigger of ultrasound (left door)
 
+![Wiring diagram]([wiring.png)
 
 ## Software
 [The sketch](GarageDoorsArduino.ino) supports over-the-air (OTA), but you will first 'prime' your chip with the OTA software as instructed here [Arduino OTA](https://arduino-esp8266.readthedocs.io/en/latest/ota_updates/readme.html). After that you can deploy this sketch and any updates OTA.
