@@ -1,5 +1,5 @@
 # garagedoors-mqtt-arduino
-An alternative to [OpenGarage](https://opengarage.io) that uses ultrasonic sensors to send status of garage doors over MQTT and controls relays to open/close doors. Can be extended to more than two doors.
+An alternative to [OpenGarage](https://opengarage.io) that uses ultrasonic sensors to send status of garage doors over MQTT and controls relays to open/close doors. It can be integrated in [Home Assistant](https://home-assistant.io) or any other home automation platform that supports MQTT. Can be extended to more than two doors.
 
 Since OpenGarage only supports one door per install and I had trouble with [ESPHome](https://esphome.io) to work with my two sensors consistently, I decided to create my own. The Arduino ESP8266 sketch in this repo allows you to build a solution that will send the status of two ultrasonic sensors over MQTT (which can be translated to the status of the garage doors in the consuming application, not included in this solution). Also, this sketch receives commands through MQTT and toggles relays to open/close the doors.
 
@@ -53,3 +53,112 @@ You will probably need to make the following edits in the sketch:
 |105-112|Add more if/else if/else constructs if you need to control more than two doors|N/A|
 |190/191|Add initialization of more relay pins if you need to control more than two doors|N/A|
 |215-220|Add code to read and publish ultrasonic sensor readings in the corresponding MQTT topics if you need to control more than two doors|N/A|
+
+## Home Assistant configuration
+Since I kept the work in the Arduino sketch to a minimum as possible there are quite some things to configure in Home Assistant. This is my config (all for two doors):
+```yaml
+input_number: #these are used to make the state switching configurable in the UI
+  garage_door_closed_distance_setting: 
+      name: Garage Door Closed Distance Setting
+      min: 0
+      max: 1000
+      step: 1
+      mode: box
+  garage_door_vehicle_present_distance_setting:
+      name: Garage Door Vehicle Present Distance Setting
+      min: 0
+      max: 1000
+      step: 1
+      mode: box
+sensor:
+  - platform: mqtt
+    name: Garage Door Distance Left
+    state_topic: "garagedoors/left"
+    icon: mdi:altimeter
+    unit_of_measurement: cm
+  - platform: mqtt
+    name: Garage Door Distance Right
+    state_topic: "garagedoors/right"
+    icon: mdi:altimeter
+    unit_of_measurement: cm
+  - platform: template
+    sensors:
+      garagedoor_left_state:
+        friendly_name: Left Garage Door State
+        value_template: "{%if states('sensor.garage_door_distance_left')|float < states('input_number.garage_door_closed_distance_setting')|float %} Closed {% elif states('sensor.garage_door_distance_left')|float < states('input_number.garage_door_vehicle_present_distance_setting')|float %} Vehicle Present {% else %} Open {% endif %}"
+        icon_template: "{%if states('sensor.garage_door_distance_left')|float < states('input_number.garage_door_closed_distance_setting')|float %} mdi:garage {% elif states('sensor.garage_door_distance_left')|float < states('input_number.garage_door_vehicle_present_distance_setting')|float %} mdi:garage-alert {% else %} mdi:garage-open {% endif %}"
+      garagedoor_right_state:
+        friendly_name: Right Garage Door State
+        value_template: "{%if states('sensor.garage_door_distance_right')|float < states('input_number.garage_door_closed_distance_setting')|float %} Closed {% elif states('sensor.garage_door_distance_right')|float < states('input_number.garage_door_vehicle_present_distance_setting')|float %} Vehicle Present {% else %} Open {% endif %}"
+        icon_template: "{%if states('sensor.garage_door_distance_right')|float < states('input_number.garage_door_closed_distance_setting')|float %} mdi:garage {% elif states('sensor.garage_door_distance_right')|float < states('input_number.garage_door_vehicle_present_distance_setting')|float %} mdi:garage-alert {% else %} mdi:garage-open {% endif %}"
+cover:
+  - platform: template
+    covers:
+      garage_door_left:
+        friendly_name: Garage Door Left
+        value_template: "{{ is_state('sensor.garagedoor_left_state','Open')}}"
+        open_cover:
+          service: mqtt.publish
+          data:
+            topic: garagedoors/command
+            payload: '{"door":"left", "command":"open"}'
+            retain: false
+        close_cover:
+          service: mqtt.publish
+          data:
+            topic: garagedoors/command
+            payload: '{"door":"left", "command":"close"}'
+            retain: false
+        stop_cover: 
+          service: mqtt.publish
+          data:
+            topic: garagedoors/command
+            payload: '{"door":"left", "command":"stop"}'
+            retain: false
+      garage_door_right:
+        friendly_name: Garage Door Right
+        value_template: "{{ is_state('sensor.garagedoor_right_state','Open')}}"
+        open_cover:
+          service: mqtt.publish
+          data:
+            topic: garagedoors/command
+            payload: '{"door":"right", "command":"open"}'
+            retain: false
+        close_cover:
+          service: mqtt.publish
+          data:
+            topic: garagedoors/command
+            payload: '{"door":"right", "command":"close"}'
+            retain: false
+        stop_cover: 
+          service: mqtt.publish
+          data:
+            topic: garagedoors/command
+            payload: '{"door":"right", "command":"stop"}'
+            retain: false
+```
+
+In the UI, these are the cards that I added:
+
+Left door:
+```yaml
+entities:
+  - entity: cover.garage_door_left
+  - entity: sensor.garagedoor_left_state
+  - entity: sensor.garage_door_distance_left
+show_header_toggle: false
+title: Left Garage Door
+type: entities
+```
+
+Right door:
+```yaml
+entities:
+  - entity: cover.garage_door_right
+  - entity: sensor.garagedoor_right_state
+  - entity: sensor.garage_door_distance_right
+show_header_toggle: false
+title: Right Garage Door
+type: entities
+
+```
