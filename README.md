@@ -1,7 +1,7 @@
 # garagedoors-mqtt-arduino
 An alternative to [OpenGarage](https://opengarage.io) that uses ultrasonic sensors to send status of garage doors over MQTT and controls relays to open/close doors. Can be extended to more than two doors.
 
-Since OpenGarage only supports one door per install, I decided to create my own. The Arduino ESP8266 sketch in this repo allows you to build a solution that will send the status of two ultrasonic sensors over MQTT (which can be translated to the status of the garage doors in the consuming application, not included in this solution). Also, this sketch receives commands through MQTT and toggles relays to open/close the doors.
+Since OpenGarage only supports one door per install and I had trouble with [ESPHome](https://esphome.io) to work with my two sensors consistently, I decided to create my own. The Arduino ESP8266 sketch in this repo allows you to build a solution that will send the status of two ultrasonic sensors over MQTT (which can be translated to the status of the garage doors in the consuming application, not included in this solution). Also, this sketch receives commands through MQTT and toggles relays to open/close the doors.
 
 ## Hardware
 - Wemos D1 Mini. You can use any equivalent but you will most likely have to update the code to match the pins.
